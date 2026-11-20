@@ -34,6 +34,7 @@ def current_user(credentials=Depends(bearer)):
         raise HTTPException(401, "Invalid or expired session")
     return UUID(str(user.id))
 
+
 # The security guard: which role does this person have?
 def current_role(staff_id=Depends(current_user)):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
@@ -42,7 +43,6 @@ def current_role(staff_id=Depends(current_user)):
     if row is None:
         raise HTTPException(403, "No role assigned")
     return row["role"]
-
 
 
 # Sign up: Create a staff account
@@ -65,6 +65,5 @@ def login(payload: Credentials):
         row = cur.fetchone()
     if row is None:
         raise HTTPException(403, "No role assigned")
-    
     return {"access_token": result.session.access_token, "role": row["role"]}
         

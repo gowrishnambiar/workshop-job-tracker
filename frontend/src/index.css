@@ -6,7 +6,7 @@ h1, h2 { margin-block: .5rem; }
 input, select, button { font: inherit; }
 input { width: 100%; padding: .65rem .8rem; border: 1px solid #2a333d; border-radius: .7rem; background: #181e24; color: inherit; }
 button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa90; color: #14132b; font-weight: bold; cursor: pointer; }
-:focus-visible { outline: 3px solid #a99cf5; outline-offset: 3px; }
+:focus-visible { outline: 3px solid #1fad74; outline-offset: 3px; }
 .muted { color: #9a97b8; font-size: .9rem; }
 .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-block: .75rem; }
 .tabs button { background: transparent; color: #9a97b8; border: 1px solid #2a333d; }
@@ -28,6 +28,7 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .status { padding: .5rem; border: 2px solid currentColor; border-radius: .7rem; background: #12122a; font-weight: bold; }
 .small { padding: .45rem .8rem; font-size: .85rem; }
 .danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
+.icon { padding: .45rem .6rem; font-size: 1rem; line-height: 1; }
 .quote { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; grid-column: 1 / -1; padding-top: .75rem; border-top: 1px solid #2a333d; }
 .quote label, .item { display: grid; gap: .25rem; font-size: .85rem; color: #8b98a5; }
 .quote input { width: 9rem; }
@@ -51,6 +52,7 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .banner { padding: 1rem; border-radius: 1rem; background: currentColor; }
 .banner strong { color: #14132b; font-size: 1.5rem; }
 .track { font-size: 1.15rem; }
+.track form { display: grid; gap: .6rem; justify-items: start; }
 .quote-box { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid #2a333d; }
 .line { display: flex; justify-content: space-between; padding-block: .35rem; }
 .line.total { font-weight: bold; border-top: 1px solid #2a333d; }

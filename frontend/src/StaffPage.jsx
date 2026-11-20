@@ -19,17 +19,18 @@ function save(status) {
     api('/jobs/' + job.id, token, 'PUT', { status: status, notes: notes }).then(reload);
 }
 
+
 // ADMIN: save the quotes
 function saveQuote() {
     api('/jobs/' + job.id + '/quote', token, 'PUT', { quote: Number(quote), extra_quote: Number(extraQuote), extra_reason: extraReason}).then(reload);
 }
 
 
-
 // DELETE: remove this job
 function remove() {
     api('/jobs/' + job.id, token, 'DELETE').then(reload);
 }
+
 
 // What one row looks like
 return <div className={'job edge-' + COLOURS[job.status]}>
@@ -44,7 +45,7 @@ return <div className={'job edge-' + COLOURS[job.status]}>
         {role === 'Admin' ? <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Note for the customer" /> : null}
         {role === 'Admin' ? <button className="small" onClick={() => save(job.status)}>Save</button> : null}
         {role === 'Admin' ? <button className="small" onClick={() => setShowQuote(!showQuote)}>Quotation</button> : null}
-        {role === 'Admin' &&  job.status !== 'Collected' ? <button className="small danger" onClick={remove}>Delete</button> : null}
+        {role === 'Admin' &&  job.status !== 'Collected' ? <button className="small danger icon" onClick={remove} aria-label="Delete job" title="Delete job">🗑</button> : null}
     </div>
     {role === 'Admin' && showQuote ? <div className="quote">
     <div className="item"><span className="muted">Item</span><strong>{job.service_type}</strong></div>
@@ -56,6 +57,7 @@ return <div className={'job edge-' + COLOURS[job.status]}>
 </div> : null}
 </div>;
 }
+
 
 // The staff page
 export default function StaffPage() {
@@ -96,13 +98,15 @@ function addJob(event) {
 }
 
 // Not signed in: show the sign-in form
-if (!token) return <form className="panel narrow" onSubmit={signIn}>
-    <h2>Staff sign in</h2>
-    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-    <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
-    <button>Sign in</button>
+if (!token) return <section className="narrow track">
+    <h1>Staff sign in</h1>
+    <form onSubmit={signIn}>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
+        <button>Sign in</button>
+    </form>
     <p className="muted">{message}</p>
-</form>;
+</section>;
 
 // Signed in: Show the board
 return <section>
