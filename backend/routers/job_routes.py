@@ -24,6 +24,12 @@ class JobUpdate(BaseModel):
     notes: str = Field(default="", max_length=500)
 
 
+# The shape of track request
+class TrackRequest(BaseModel):
+    plate_number: str
+    last4: str = Field(min_length=4, max_length=4)
+
+
 # The shape of a quote
 class QuoteUpdate(BaseModel):
     quote: float = Field(ge=0)
@@ -32,9 +38,9 @@ class QuoteUpdate(BaseModel):
 
 
 # CUSTOMER: track a car by plate
-@router.get("/track/{plate_number}")
-def track(plate_number: str):
-    return jobs.track(plate_number)
+@router.post("/track")
+def track(payload: TrackRequest):
+    return jobs.track(payload.plate_number, payload.last4)
 
 
 # STAFF: list the jobs

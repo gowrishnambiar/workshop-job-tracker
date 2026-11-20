@@ -46,11 +46,12 @@ def list_jobs(view):
 
 
 # READ: find one car by plate number (CUSTOMER)
-def track(plate):
+def track(plate, last4):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        cur.execute("""select plate_number, car_model, service_type, status, notes, updated_at from public.workshop_jobs
-            where plate_number = %s order by id desc limit 1""",
-            (clean_plate(plate),))
+        cur.execute("""select plate_number, car_model, customer_name, service_type, status, notes, updated_at, quote, extra_quote, extra_reason, extra_decision from public.workshop_jobs
+            where plate_number = %s and right(phone_number, 4) = %s 
+            order by id desc limit 1""",
+            (clean_plate(plate), last4))
         row = cur.fetchone()
     if row is None:
         raise HTTPException(404, "No job found for this car")
@@ -91,9 +92,13 @@ def set_quote(job_id, quote, extra_quote, extra_reason):
         decision = "None"
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("""update public.workshop_jobs
-        set quote = %s, extra_quote = %s, extra_reason = %s, extra_decision = %s, updated_at = now()
-        where id = %s returning *""",
-        (quote, extra_quote, extra_reason, decision, job_id))
+            set quote = %s, extra_quote = %s, extra_reason = %s, extra_decision = %s, updated_at = now()
+            where id = %s returning *""",
+            (quote, extra_quote, extra_reason, decision, job_id))
+        row = cur.fetchone()
+    if row is None:
+        raise HTTPException(404, "Job not found")
+    return row
         
 
     

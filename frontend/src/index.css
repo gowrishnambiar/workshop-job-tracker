@@ -1,0 +1,63 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, Arial, sans-serif; background: linear-gradient(rgba(16, 20, 24, .85), rgba(16, 20, 24, .85)), url('/workshop.jpg') center / cover fixed; color: #e8edf2; line-height: 1.5; }
+main { width: min(100% - 2rem, 64rem); margin: auto; padding-block: 2rem; }
+.narrow { max-width: 28rem; }
+h1, h2 { margin-block: .5rem; }
+input, select, button { font: inherit; }
+input { width: 100%; padding: .65rem .8rem; border: 1px solid #2a333d; border-radius: .7rem; background: #181e24; color: inherit; }
+button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa90; color: #14132b; font-weight: bold; cursor: pointer; }
+:focus-visible { outline: 3px solid #a99cf5; outline-offset: 3px; }
+.muted { color: #9a97b8; font-size: .9rem; }
+.row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-block: .75rem; }
+.tabs button { background: transparent; color: #9a97b8; border: 1px solid #2a333d; }
+.tabs button.on { background: #eceaf7; color: #14132b; }
+.panel { display: grid; gap: .6rem; padding: 1.25rem; margin-block: 1rem; border: 1px solid #2a333d; border-radius: 1rem; background: #181e24; }
+
+/* The hero summary card */
+.hero { padding: 1.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, .50); margin-block: 1rem; border-radius: 1.25rem; background: linear-gradient(135deg, #1fad74, #0b8d73); }
+.big { font-size: 2.5rem; font-weight: bold; }
+.chip { padding: .3rem .8rem; border-radius: 99rem; background: rgba(255, 255, 255, .15); font-size: .85rem; }
+.add { width: 100%; padding: .9rem; font-size: 1.05rem; }
+
+/* One job card */
+.job { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 1rem 1.25rem; margin-block: .6rem; border-radius: 1rem; background: #012824; border-left: 4px solid #2e2c55; }
+.title { font-size: 1.1rem; font-weight: bold; }
+.plate { display: inline-block; padding: .1rem .5rem; border-radius: .3rem; background: #fefefe; color: #14132b; font-family: Arial, Helvetica, sans-serif; font-weight: bold; letter-spacing: .01em; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.actions input { width: 12rem; }
+.status { padding: .5rem; border: 2px solid currentColor; border-radius: .7rem; background: #12122a; font-weight: bold; }
+.small { padding: .45rem .8rem; font-size: .85rem; }
+.danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
+.quote { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; grid-column: 1 / -1; padding-top: .75rem; border-top: 1px solid #2a333d; }
+.quote label, .item { display: grid; gap: .25rem; font-size: .85rem; color: #8b98a5; }
+.quote input { width: 9rem; }
+.item strong { color: #e8edf2; font-size: 1rem; }
+
+/* Status colours: the text, and the card's left edge */
+.received { color: #38bdf8; }
+.checking { color: #a78bfa; }
+.waiting { color: #fbbf24; }
+.repairing { color: #fb923c; }
+.ready { color: #a3e635; }
+.collected { color: #e2e8f0; }
+.edge-received { border-left-color: #38bdf8; }
+.edge-checking { border-left-color: #a78bfa; }
+.edge-waiting { border-left-color: #fbbf24; }
+.edge-repairing { border-left-color: #fb923c; }
+.edge-ready { border-left-color: #a3e635; }
+.edge-collected { border-left-color: #e2e8f0; }
+
+/* Customer page */
+.banner { padding: 1rem; border-radius: 1rem; background: currentColor; }
+.banner strong { color: #14132b; font-size: 1.5rem; }
+.track { font-size: 1.15rem; }
+.quote-box { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid #2a333d; }
+.line { display: flex; justify-content: space-between; padding-block: .35rem; }
+.line.total { font-weight: bold; border-top: 1px solid #2a333d; }
+
+
+@media (max-width: 40rem) {
+  h1 { font-size: 1.6rem; }
+  .actions input { width: 100%; }
+  .job {grid-template-columns: 1fr;}
+}
