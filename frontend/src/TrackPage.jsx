@@ -11,9 +11,11 @@ function money(amount) {
 
 
 // The quotation
-function QuoteBox({ job}) {
+function QuoteBox({ job, onDecide}) {
     const quote = Number(job.quote);
     const extra = Number(job.extra_quote);
+    const approved = job.extra_decision === 'Approved';
+    const toPay = (quote + (approved ? extra : 0)) * (1 + SST_RATE);
     if (quote === 0) return <p className="muted">Quotation coming soon</p>;
     return <div className="quote-box">
         <h3>Quotation</h3>
@@ -25,8 +27,13 @@ function QuoteBox({ job}) {
             <div className="line"><span>{job.extra_reason}</span><span>{money(extra)}</span></div>
             <div className="line muted"><span>SST 8%</span><span>{money(extra * SST_RATE)}</span></div>
             <div className="line total"><span>Extra total</span><span>{money(extra * (1 + SST_RATE))}</span></div>
-            <p>Your Decision: <strong>{job.extra_decision}</strong></p>
+            {job.extra_decision === 'Pending' ? <div className="row">
+                <button onClick={() => onDecide('Approved')}>Approve</button>
+                <button className="danger" onClick={() => onDecide('Declined')}>Decline</button>
+            </div> : <p>Your decision: <strong>{job.extra_decision}</strong></p>}
         </div> : null}
+        {extra > 0 ? <div className="line total grand"><span>Total to pay</span><span>{money(toPay)}</span></div> : null}
+        <button className="download" disabled>Download Quotation (coming soon)</button>
     </div>;
 }
 
@@ -38,6 +45,7 @@ export default function TrackPage() {
     const [job, setJob] = useState(null);
     const [message, setMessage] = useState('');
 
+
 // Check button: ask the backend
 function check(event) {
     event.preventDefault();
@@ -46,6 +54,15 @@ function check(event) {
         .then(data => {setJob(data); setMessage(''); })
         .catch(() => {setJob(null); setMessage('No job found for this plate.'); });
 }    
+
+
+// CUSTOMER: approves and declines the extra quote
+function decide(choice) {
+    api('/track/decision', '', 'POST', { plate_number: plate.trim(), last4: last4, decision: choice})
+        .then(data => setJob({ ...job, extra_decision: data.extra_decision}))
+        .catch(() => setMessage('Could not save your decision. Please try again.'))
+} 
+
 
 // What the customer sees
 return <section className="narrow track">
@@ -61,7 +78,7 @@ return <section className="narrow track">
         <div className={'banner ' + COLOURS[job.status]}><strong>{job.status}</strong></div>
         <p>{job.plate_number} · {job.car_model}</p>
         {job.notes ? <p>Note: {job.notes}</p> :null}
-        <QuoteBox job={job} />
+        <QuoteBox job={job} onDecide={decide} />
         <p className="muted">Updated at {new Date(job.updated_at).toLocaleString('en-MY')}</p>
     </div> : null}
 </section>

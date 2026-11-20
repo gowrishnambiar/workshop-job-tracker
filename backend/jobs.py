@@ -99,6 +99,20 @@ def set_quote(job_id, quote, extra_quote, extra_reason):
     if row is None:
         raise HTTPException(404, "Job not found")
     return row
+
+
+# CUSTOMER: approve or decline the extra quote
+def decide(plate, last4, decision):
+    with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("""update public.workshop_jobs
+            set extra_decision = %s, updated_at = now()
+            where plate_number = %s and right(phone_number, 4) = %s and extra_decision = 'Pending' returning extra_decision""",
+            (decision, clean_plate(plate), last4))
+        row = cur.fetchone()
+    if row is None:
+        raise HTTPException(404, "No pending decision")
+    return row
+        
         
 
     

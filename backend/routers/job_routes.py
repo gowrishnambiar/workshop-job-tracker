@@ -37,10 +37,25 @@ class QuoteUpdate(BaseModel):
     extra_reason: str = Field(default="", max_length=300)
 
 
+# The shape of customer decision
+class DecisionRequest(BaseModel):
+    plate_number: str
+    last4: str = Field(min_length=4, max_length=4)
+    decision: str
+
+
 # CUSTOMER: track a car by plate
 @router.post("/track")
 def track(payload: TrackRequest):
     return jobs.track(payload.plate_number, payload.last4)
+
+
+# CUSTOMER: approve or decline extra quote
+@router.post('/track/decision')
+def decide(payload: DecisionRequest):
+    if payload.decision not in ["Approved", "Declined"]:
+        raise HTTPException(422, "Approve or Decline the extra quote")
+    return jobs.decide(payload.plate_number, payload.last4, payload.decision)
 
 
 # STAFF: list the jobs
