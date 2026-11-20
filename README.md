@@ -2,7 +2,7 @@
 
 A web app for car workshops. Staff update each car's repair status and quotation; customers check their car's progress and approve or decline extra work from their phone.
 
-Built by Gowrish Nambiar Gengadharan as the capstone project of the Python Bootcamp by Jom Code (Jom Hack), November 2026.
+Built by me as the capstone project of the Python Bootcamp by Jom Code (Jom Hack), November 2026.
 
 ## The problem
 
