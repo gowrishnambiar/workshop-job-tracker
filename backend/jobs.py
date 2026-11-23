@@ -48,7 +48,7 @@ def list_jobs(view):
 # READ: find one car by plate number (CUSTOMER)
 def track(plate, last4):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        cur.execute("""select plate_number, car_model, customer_name, service_type, status, notes, updated_at, quote, extra_quote, extra_reason, extra_decision from public.workshop_jobs
+        cur.execute("""select plate_number, car_model, customer_name, service_type, status, notes, updated_at, ready_at, quote, extra_quote, extra_reason, extra_decision from public.workshop_jobs
             where plate_number = %s and right(phone_number, 4) = %s 
             order by id desc limit 1""",
             (clean_plate(plate), last4))
@@ -122,3 +122,14 @@ def delete_job(job_id):
         cur.execute("delete from public.workshop_jobs where id = %s", (job_id,))
     if cur.rowcount == 0:
         raise HTTPException(404, "Job not found")
+           
+    
+# Set pick up time
+def set_ready(job_id, ready_at):
+    with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("update public.workshop_jobs set ready_at = %s, updated_at = now() where id = %s returning *",
+                    (ready_at, job_id),)
+        row = cur.fetchone()
+    if row is None:
+        raise HTTPException(404, "Job not found")
+    return row   

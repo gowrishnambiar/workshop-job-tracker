@@ -1,10 +1,20 @@
 // Tools I need
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { STATUSES, COLOURS } from './statuses.js';
 import { api } from './api.js';
 
 // A blank new-job form
 const EMPTY = { plate_number: '', car_model: '', customer_name: '', phone: '', service_type: '' };
+
+
+// Pick up time: turn the saved time into a picker's format (Malaysia time)
+function toInput(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+}
+
 
 // One car in the list
 function JobRow({ job, token, reload, role }) {
@@ -13,6 +23,9 @@ function JobRow({ job, token, reload, role }) {
     const [extraQuote, setExtraQuote] = useState(job.extra_quote);
     const [extraReason, setExtraReason] = useState(job.extra_reason);
     const [showQuote, setShowQuote] = useState(false);
+    const [readyAt, setReadyAt] = useState(toInput(job.ready_at));
+    const pickerRef = useRef(null);
+
 
 // UPDATE: save status and note
 function save(status) {
@@ -25,6 +38,13 @@ function saveQuote() {
     api('/jobs/' + job.id + '/quote', token, 'PUT', { quote: Number(quote), extra_quote: Number(extraQuote), extra_reason: extraReason}).then(reload);
 }
 
+
+// ADMIN/FOREMAN: save pickup time
+// Save pickup time: runs as soon as a date and time are picked
+function saveReady(value) {
+    setReadyAt(value);
+    api('/jobs/' + job.id + '/ready', token, 'PUT', { ready_at: value ? new Date(value).toISOString() : null }).then(reload);
+}
 
 // DELETE: remove this job
 function remove() {
@@ -42,22 +62,30 @@ return <div className={'job edge-' + COLOURS[job.status]}>
         <select className={'status ' + COLOURS[job.status]} value={job.status} onChange={e => save(e.target.value)}>
             {STATUSES.map(name => <option key={name}>{name}</option>)}
         </select>
-        {role === 'Admin' ? <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Note for the customer" /> : null}
-        {role === 'Admin' ? <button className="small" onClick={() => save(job.status)}>Save</button> : null}
+        <div className="ready">
+            <button type="button" className="small" onClick={() => pickerRef.current.showPicker()}>
+                {readyAt ? 'Pickup: ' + new Date(readyAt).toLocaleString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : 'Set pickup time'}
+            </button>
+            <input ref={pickerRef} className="hidden-picker" type="datetime-local" value={readyAt} onChange={e => saveReady(e.target.value)} />
+        </div>
         {role === 'Admin' ? <button className="small" onClick={() => setShowQuote(!showQuote)}>Quotation</button> : null}
-        {role === 'Admin' &&  job.status !== 'Collected' ? <button className="small danger icon" onClick={remove} aria-label="Delete job" title="Delete job">🗑</button> : null}
+        {role === 'Admin' && job.status !== 'Collected' ? <button className="small danger icon" onClick={remove} aria-label="Delete job" title="Delete job">🗑</button> : null}
     </div>
+    {/* Second row: note for the customer, Admin only */}
+    {role === 'Admin' ? <div className="note-row">
+        <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Note for the customer" />
+        <button className="small" onClick={() => save(job.status)}>Save</button>
+    </div> : null}
     {role === 'Admin' && showQuote ? <div className="quote">
-    <div className="item"><span className="muted">Item</span><strong>{job.service_type}</strong></div>
-    <label>Quote (RM)<input type="number" value={quote} onChange={e => setQuote(e.target.value)} /></label>
-    <label>Extra (RM)<input type="number" value={extraQuote} onChange={e => setExtraQuote(e.target.value)} /></label>
-    <label>Extra damage found<input value={extraReason} onChange={e => setExtraReason(e.target.value)} /></label>
-    <button className="small" onClick={saveQuote}>Save quote</button>
-    <span className="muted">Customer: {job.extra_decision}</span>
-</div> : null}
+        <div className="item"><span className="muted">Item</span><strong>{job.service_type}</strong></div>
+        <label>Quote (RM)<input type="number" value={quote} onChange={e => setQuote(e.target.value)} /></label>
+        <label>Extra (RM)<input type="number" value={extraQuote} onChange={e => setExtraQuote(e.target.value)} /></label>
+        <label>Extra damage found<input value={extraReason} onChange={e => setExtraReason(e.target.value)} /></label>
+        <button className="small" onClick={saveQuote}>Save quote</button>
+        <span className="muted">Customer: {job.extra_decision}</span>
+    </div> : null}
 </div>;
 }
-
 
 // The staff page
 export default function StaffPage() {

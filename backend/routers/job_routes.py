@@ -3,6 +3,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from auth import current_user, current_role
+from datetime import datetime
+from jobs import set_ready
 import jobs
 
 # This file's router
@@ -42,6 +44,11 @@ class DecisionRequest(BaseModel):
     plate_number: str
     last4: str = Field(min_length=4, max_length=4)
     decision: str
+
+
+# The pickup time form
+class ReadyUpdate(BaseModel):
+    ready_at: datetime | None = None
 
 
 # CUSTOMER: track a car by plate
@@ -86,6 +93,12 @@ def quote_job(job_id: int, payload: QuoteUpdate, role: str = Depends(current_rol
     if role != "Admin":
         raise HTTPException(403, "Admin only")
     return jobs.set_quote(job_id, payload.quote, payload.extra_quote, payload.extra_reason)
+
+
+# ADMIN / FOREMAN: set pickup time
+@router.put("/jobs/{job_id}/ready")
+def save_ready(job_id: int, payload: ReadyUpdate, role=Depends(current_role)):
+    return set_ready(job_id, payload.ready_at)
     
 
 

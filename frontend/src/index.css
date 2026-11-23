@@ -33,6 +33,11 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .quote label, .item { display: grid; gap: .25rem; font-size: .85rem; color: #8b98a5; }
 .quote input { width: 9rem; }
 .item strong { color: #e8edf2; font-size: 1rem; }
+.hidden-picker { position: absolute; opacity: 0; width: 0; height: 0; pointer-events:none; }
+.ready button { background: transparent; border: 1px solid currentColor; color: #5eead4; }
+.job .title { white-space: nowrap; }
+.note-row { grid-column: 1 / -1; display: flex; gap: .5rem; }
+.note-row input { flex: 1; }
 
 /* Status colours: the text, and the card's left edge */
 .received { color: #38bdf8; }
