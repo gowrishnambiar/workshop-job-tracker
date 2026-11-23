@@ -1,5 +1,5 @@
-// The Backend Address
-export const API = 'http://127.0.0.1:8000';
+// The Backend Address (online: VITE_API_URL / local: 127.0.0.1:8000)
+export const API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 
 // The 6 Statuses, in order
@@ -19,3 +19,5 @@ export const COLOURS = {
 
 // SST rate (change here if the government changes it)
 export const SST_RATE = 0.08;
+
+
