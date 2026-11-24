@@ -19,8 +19,18 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .big { font-size: 2.5rem; font-weight: bold; }
 .chip { padding: .3rem .8rem; border-radius: 99rem; background: rgba(255, 255, 255, .15); font-size: 1rem; }
 .add { width: 100%; padding: .9rem; font-size: 1.05rem; }
+
 /* STAFF: Who is signed in + log out on the right */
 .account { justify-content: flex-end; }
+
+/* STAFF: status filter buttons (selected one is white) */
+button.chip { background: rgba(255, 255, 255, .15); color: #fff; }
+button.chip.on { background: #fff; color: #0b8d73; }
+
+/* STAFF: tabs left, filters right, on one line */
+.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
+.filters select { padding: .65rem .8rem; border: 1px solid #2a333d; border-radius: .7rem; background: #181e24; color: inherit; }
+.filters input { width: 10rem; }
 
 /* STAFF: One car row (JobRow) */
 .job { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 1rem 1.25rem; margin-block: .6rem; border-radius: 1rem; background: #012824; border-left: 4px solid #2e2c55; }

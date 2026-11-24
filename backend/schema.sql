@@ -22,7 +22,7 @@ alter table public.workshop_jobs
     add column if not exists quote numeric(10, 2) not null default 0,
     add column if not exists extra_quote numeric (10, 2) not null default 0,
     add column if not exists extra_reason text not null default '',
-    add column if not exists extra decision text not null default 'None';
+    add column if not exists extra_decision text not null default 'None';
 
 -- RULE: the 4 allowed customer decisions
 alter table public.workshop_jobs
@@ -42,8 +42,6 @@ create table if not exists public.staff (
 
 -- SECURITY: lock the staff table from the outside
 alter table public.staff enable row level security;
-insert into public.staff (user_id, role)
-values ('id1', 'Admin');
 
 -- GIVE A ROLE: run this once per staff with their UID from SUPABASE Authenthication
 -- insert into public.staff(user_id, role) values('UID', 'Admin')

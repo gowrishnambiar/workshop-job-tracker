@@ -97,6 +97,10 @@ export default function StaffPage() {
     const [jobs, setJobs] = useState([]);
     const [message, setMessage] = useState('');
     const [showForm, setShowForm] = useState(false);
+    // FILTER: What the staff has chosen to see
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [modelFilter, setModelFilter] = useState('All');
+    const [search, setSearch] = useState('');
 
     // READ (Staff): Load the list
     function load() {
@@ -152,6 +156,16 @@ export default function StaffPage() {
         <p className="muted">{message}</p>
     </section>;
 
+    // FILTER: car models for the dropdown (no repeats, A to Z)
+    const models = [...new Set(jobs.map(job => job.car_model))].sort();
+
+    // FILTER: on the cars that pass all 3 checls ( a typed plate searches every status)
+    const shown = jobs.filter(job =>
+        (search !== '' || statusFilter === 'All' || job.status === statusFilter) &&
+        (modelFilter === 'All' || job.car_model === modelFilter) &&
+        job.plate_number.includes(search.toUpperCase().replace(/\s/g, ''))
+    );
+
     // SCREEN: The board (signed-in)
     return <section>
         {/* SCREEN: Who is signed in, and Log out */}
@@ -160,13 +174,17 @@ export default function StaffPage() {
             <button className="small" onClick={() => signOut()}>Log out</button>
         </div>
 
-        {/*} SCREEN: Summary card (Car count, status chips) */}
+        {/* SCREEN: Summary card (Car count, status chips) */}
         <div className="hero">
             <p>Workshop Job Tracker</p>
             <div className="big">{jobs.length} cars</div>
             <p>{view === 'active' ? 'in the workshop now' : 'collected'}</p>
             <div className="row">
-                {STATUSES.slice(0, 5).map(name => <span key={name} className="chip">{name} {jobs.filter(job => job.status === name).length}</span>)}
+                {['All', ...STATUSES.slice(0, 5)].map(name=>
+                    <button key={name} className={'chip' + (statusFilter == name ? ' on' : '')} onClick={() => setStatusFilter(name)}>
+                       {name} {name === 'All' ? jobs.length : jobs.filter(job => job.status === name).length} 
+                    </button>
+                )}
             </div>
         </div>
 
@@ -182,12 +200,25 @@ export default function StaffPage() {
         </form> : null}
         <p className="muted">{message}</p>
 
-        {/* SCREEN: Active/Completed tabs */}
-        <nav className="row tabs">
-            <button className={view === 'active' ? 'on' : ''} onClick={() => setView('active')}>Active</button>
-            <button className={view === 'completed' ? 'on' : ''} onClick={() => setView('completed')}>Completed</button>
-        </nav>
+        {/* SCREEN: tabs on the left, filters on the right */}
+        <div className="toolbar">
+            <nav className="row tabs">
+                <button className={view === 'active' ? 'on' : ''} onClick={() => { setView('active'); setStatusFilter('All'); }}>Active</button>
+                <button className={view === 'completed' ? 'on' : ''} onClick={() => { setView('completed'); setStatusFilter('All'); }}>Completed</button>
+            </nav>
+            <div className="row filters">
+                <select value={modelFilter} onChange={e => setModelFilter(e.target.value)}>
+                    <option value="All">All models</option>
+                    {models.map(model => <option key={model}>{model}</option>)}
+                </select>
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search plate" maxLength={12} />
+            </div>
+        </div>
+
+        {/* SCREEN: Nothing matches */}
+        {shown.length === 0 ? <p className="muted">No car match. Try All or clear search.</p> : null}
+
         {/* SCREEN: The list of cars */}
-        {jobs.map(job => <JobRow key={job.id} job={job} token={token} reload={load} role={role} />)}
+        {shown.map(job => <JobRow key={job.id} job={job} token={token} reload={load} role={role} />)}
     </section>;
 }
