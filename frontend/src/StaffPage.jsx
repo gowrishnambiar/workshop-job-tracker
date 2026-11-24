@@ -88,8 +88,8 @@ function JobRow({ job, token, reload, role }) {
 
 // PAGE (Staff): Sign in, board, add jobs
 export default function StaffPage() {
-    const [token, setToken] = useState('');
-    const [role, setRole] = useState('');
+    const [token, setToken] = useState(sessionStorage.getItem('token') || '');
+    const [role, setRole] = useState(sessionStorage.getItem('role') || '');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [form, setForm] = useState(EMPTY);
@@ -100,7 +100,9 @@ export default function StaffPage() {
 
     // READ (Staff): Load the list
     function load() {
-        api('/jobs?view=' + view, token).then(data => setJobs(data));
+        api('/jobs?view=' + view, token)
+        .then(data => setJobs(data))
+        .catch(() => signOut('Session expired. Please sign in again'));
     }
 
     // AUTO: reload when signed in or the tab changes
@@ -112,8 +114,23 @@ export default function StaffPage() {
     function signIn(event) {
         event.preventDefault();
         api('/login', '', 'POST', { email: email, password: password })
-            .then(data => { setToken(data.access_token); setRole(data.role); })
+            .then(data => { 
+                sessionStorage.setItem('token', data.access_token);
+                sessionStorage.setItem('role', data.role);
+                setToken(data.access_token); 
+                setRole(data.role); })
             .catch(() => setMessage('Sign in failed.'));
+    }
+
+
+    // LOGOUT: forget the key card and go back to the sign-in form
+    function signOut(text = '') {
+        sessionStorage.clear();
+        setToken('');
+        setRole('');
+        setJobs([]);
+        setPassword('');
+        setMessage(text);
     }
 
     // CREATE (Admin): Add a new job
@@ -137,6 +154,12 @@ export default function StaffPage() {
 
     // SCREEN: The board (signed-in)
     return <section>
+        {/* SCREEN: Who is signed in, and Log out */}
+        <div className="row account">
+            <span className="muted">Signed in as {role}</span>
+            <button className="small" onClick={() => signOut()}>Log out</button>
+        </div>
+
         {/*} SCREEN: Summary card (Car count, status chips) */}
         <div className="hero">
             <p>Workshop Job Tracker</p>
@@ -145,8 +168,8 @@ export default function StaffPage() {
             <div className="row">
                 {STATUSES.slice(0, 5).map(name => <span key={name} className="chip">{name} {jobs.filter(job => job.status === name).length}</span>)}
             </div>
-
         </div>
+
         {/* SCREEN (Admin): + Job button and new-job form */}
         {role === 'Admin' ? <button className="add" onClick={() => setShowForm(!showForm)}>+ Job</button> : null}
         {showForm ? <form className="panel" onSubmit={addJob}>
@@ -158,6 +181,7 @@ export default function StaffPage() {
             <button>Add job</button>
         </form> : null}
         <p className="muted">{message}</p>
+
         {/* SCREEN: Active/Completed tabs */}
         <nav className="row tabs">
             <button className={view === 'active' ? 'on' : ''} onClick={() => setView('active')}>Active</button>
