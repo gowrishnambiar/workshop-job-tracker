@@ -79,7 +79,10 @@ return <section className="narrow track">
         <p>{job.plate_number} · {job.car_model}</p>
         {job.notes ? <p>Note: {job.notes}</p> :null}
         <QuoteBox job={job} onDecide={decide} />
-        <p className="muted">Updated at {new Date(job.updated_at).toLocaleString('en-MY')}</p>
+        {job.ready_at ? <p className="pickup">
+            Ready for pickup: <strong>{new Date(job.ready_at).toLocaleString('en-MY', { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</strong>
+        </p> : null}
+        <p className="muted">Updated at {new Date(job.updated_at).toLocaleString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} </p>
     </div> : null}
 </section>
 }

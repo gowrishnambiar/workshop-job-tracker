@@ -24,7 +24,7 @@ def client():
     return create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_PUBLISHABLE_KEY"])
 
 
-# The security guard: who is this?
+# GUARD: who is this? (reads the key card)
 def current_user(credentials=Depends(bearer)):
     if credentials is None:
         raise HTTPException(401, "Sign in to continue")
@@ -35,7 +35,7 @@ def current_user(credentials=Depends(bearer)):
     return UUID(str(user.id))
 
 
-# The security guard: which role does this person have?
+# GUARD: which role? (Admin or Foreman)
 def current_role(staff_id=Depends(current_user)):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("select role from public.staff where user_id = %s", (staff_id,))
@@ -45,7 +45,7 @@ def current_role(staff_id=Depends(current_user)):
     return row["role"]
 
 
-# Sign up: Create a staff account
+# SIGNUP: create a staff account
 def signup(payload: Credentials):
     try:
         result = client().auth.sign_up(payload.model_dump())
@@ -54,7 +54,7 @@ def signup(payload: Credentials):
     return {"user.id": str(result.user.id)}
 
 
-# Login: Check the password, give the key card
+# LOGIN: check the password, give the key card
 def login(payload: Credentials):
     try:
         result = client().auth.sign_in_with_password(payload.model_dump())

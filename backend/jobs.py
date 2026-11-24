@@ -4,11 +4,11 @@ from psycopg.rows import dict_row
 from database import connection
 
 
-# The six allowed statuses
+# RULE: the six allowed statuses
 STATUSES = ["Received", "Checking", "Waiting for parts", "Repairing", "Ready for pickup", "Collected"]
 
 
-# Clean up a plate number
+# HELPER: clean up a plate number
 def clean_plate(text):
     plate = text.replace(" ", "").upper()
     if not 2 <= len(plate) <= 12:
@@ -16,14 +16,14 @@ def clean_plate(text):
     return plate
 
 
-# Check if the status is allowed
+# HELPER: check the status is allowed
 def check_status(status):
     if status not in STATUSES:
         raise HTTPException(422, "Unknown Status")
     return status
 
 
-# CREATE: add a new car
+# CREATE (Admin): add a new job
 def create_job(staff_id, plate, car_model, customer_name, phone, service_type):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("""insert into public.workshop_jobs
@@ -33,7 +33,7 @@ def create_job(staff_id, plate, car_model, customer_name, phone, service_type):
         return cur.fetchone()
 
 
-# READ: the active or completed list
+# READ (Staff): list active or completed jobs
 def list_jobs(view):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         if view == "completed":
@@ -45,7 +45,7 @@ def list_jobs(view):
         return cur.fetchall()
 
 
-# READ: find one car by plate number (CUSTOMER)
+# READ (Customer): track a car by plate + last 4
 def track(plate, last4):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("""select plate_number, car_model, customer_name, service_type, status, notes, updated_at, ready_at, quote, extra_quote, extra_reason, extra_decision from public.workshop_jobs
@@ -58,7 +58,7 @@ def track(plate, last4):
     return row
 
 
-# UPDATE: change status and add note
+# UPDATE (Admin): status and note
 def update_job(job_id, status, notes):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("""update public.workshop_jobs
@@ -71,7 +71,7 @@ def update_job(job_id, status, notes):
     return row
 
 
-# UPDATE (foreman): change the status only
+# UPDATE (Foreman): status only
 def update_status(job_id, status):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("""update public.workshop_jobs
@@ -84,7 +84,7 @@ def update_status(job_id, status):
     return row
 
 
-# UPDATE (admin): set the quotes
+# UPDATE (Admin): set the quotation
 def set_quote(job_id, quote, extra_quote, extra_reason):
     if extra_quote > 0:
         decision = "Pending"
@@ -101,7 +101,7 @@ def set_quote(job_id, quote, extra_quote, extra_reason):
     return row
 
 
-# CUSTOMER: approve or decline the extra quote
+# UPDATE (Customer): approve or decline the extra quote
 def decide(plate, last4, decision):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("""update public.workshop_jobs
@@ -114,9 +114,7 @@ def decide(plate, last4, decision):
     return row
         
         
-
-    
-# DELETE: remove a job entered by mistake
+# DELETE (Admin): remove a job
 def delete_job(job_id):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("delete from public.workshop_jobs where id = %s", (job_id,))
@@ -124,7 +122,7 @@ def delete_job(job_id):
         raise HTTPException(404, "Job not found")
            
     
-# Set pick up time
+# UPDATE (Admin + Foreman): set pickup time
 def set_ready(job_id, ready_at):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("update public.workshop_jobs set ready_at = %s, updated_at = now() where id = %s returning *",
