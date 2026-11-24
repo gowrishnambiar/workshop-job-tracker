@@ -43,6 +43,16 @@ def create_job(staff_id, plate, car_model, customer_name, phone, service_type):
         return cur.fetchone()
 
 
+# CREATE (Admin): Add a new extra (extra damage found)
+def create_extra(job_id, description, parts, labour):
+    with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("""insert into public.job_extras
+            (job_id, description, parts, labour)
+            values (%s, %s, %s, %s) returning *""",
+            (job_id, description.strip(), parts, labour))
+        return cur.fetchone()
+    
+
 # READ (Staff): list active or completed jobs
 def list_jobs(view):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
@@ -97,34 +107,34 @@ def update_status(job_id, status):
 
 
 # UPDATE (Admin): set the quotation
-def set_quote(job_id, quote, extra_quote, extra_reason):
-    if extra_quote > 0:
-        decision = "Pending"
-    else:
-        decision = "None"
+def set_quote(job_id, quote, labour):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         cur.execute("""update public.workshop_jobs
-            set quote = %s, extra_quote = %s, extra_reason = %s, extra_decision = %s, updated_at = now()
+            set quote = %s, labour = %s, updated_at = now()
             where id = %s returning *""",
-            (quote, extra_quote, extra_reason, decision, job_id))
+            (quote, labour, job_id))
         row = cur.fetchone()
     if row is None:
         raise HTTPException(404, "Job not found")
     return row
 
 
-# UPDATE (Customer): approve or decline the extra quote
-def decide(plate, last4, decision):
-    with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        cur.execute("""update public.workshop_jobs
-            set extra_decision = %s, updated_at = now()
-            where plate_number = %s and right(phone_number, 4) = %s and extra_decision = 'Pending' returning extra_decision""",
-            (decision, clean_plate(plate), last4))
+# UPDATE (Customer): approve or decline one extra quote
+def decide_extra(extra_id, plate, last4, decision):
+    with connection() as conn, conn.cursor(row_factory=dict_row)as cur:
+        cur.execute("""update public.job_extras
+            set decision = %s
+            where id = %s 
+                and decision = 'Pending'
+                and job_id in (select id from public.workshop_jobs where plate_number = %s and right(phone_number, 4) = %s)
+                returning *""",
+                (decision, extra_id, clean_plate(plate), last4))
         row = cur.fetchone()
     if row is None:
         raise HTTPException(404, "No pending decision")
     return row
-        
+
+
         
 # DELETE (Admin): remove a job
 def delete_job(job_id):
@@ -132,6 +142,13 @@ def delete_job(job_id):
         cur.execute("delete from public.workshop_jobs where id = %s", (job_id,))
     if cur.rowcount == 0:
         raise HTTPException(404, "Job not found")
+
+# DELETE (Admin): remove an extra quotation
+def delete_extra(extra_id):
+    with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("delete from public.job_extras where id = %s", (extra_id,))
+    if cur.rowcount == 0:
+        raise HTTPException(404, "Extra not found")
            
     
 # UPDATE (Admin + Foreman): set pickup time

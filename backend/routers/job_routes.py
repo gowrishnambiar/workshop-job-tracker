@@ -31,15 +31,21 @@ class TrackRequest(BaseModel):
     last4: str = Field(min_length=4, max_length=4)
 
 
-# SHAPE: quotation
+# SHAPE: quotation (parts + labour)
 class QuoteUpdate(BaseModel):
     quote: float = Field(ge=0)
-    extra_quote: float = Field(default=0, ge=0, le=100000)
-    extra_reason: str = Field(default="", max_length=300)
+    labour: float = Field(default=0, ge=0, le=100000)
 
 
-# SHAPE: customer decision
-class DecisionRequest(BaseModel):
+# SHAPE: new extra
+class NewExtra(BaseModel):
+    description: str = Field(min_length=1, max_length=120)
+    parts: float = Field(default=0, ge=0, le=100000)
+    labour: float = Field(default=0, ge=0, le=100000)
+
+
+# SHAPE: customer decision on one extra
+class ExtraDecision(BaseModel):
     plate_number: str
     last4: str = Field(min_length=4, max_length=4)
     decision: str
@@ -56,12 +62,12 @@ def track(payload: TrackRequest):
     return jobs.track(payload.plate_number, payload.last4)
 
 
-# UPDATE (Customer): approve or decline the extra quote
-@router.post('/track/decision')
-def decide(payload: DecisionRequest):
+# UPDATE (Customer): approve or decline one extra
+@router.post("/track/extras/{extra_id}/decision")
+def decide_extra(extra_id: int, payload: ExtraDecision):
     if payload.decision not in ["Approved", "Declined"]:
         raise HTTPException(422, "Approve or Decline the extra quote")
-    return jobs.decide(payload.plate_number, payload.last4, payload.decision)
+    return jobs.decide_extra(extra_id, payload.plate_number, payload.last4, payload.decision)
 
 
 # READ (Staff): list active or completed jobs
@@ -78,6 +84,14 @@ def create(payload: NewJob, staff_id: UUID = Depends(current_user), role: str = 
     return jobs.create_job(staff_id, payload.plate_number, payload.car_model, payload.customer_name, payload.phone, payload.service_type)
 
 
+# CREATE (Admin): add an extra to a job
+@router.post("/jobs/{job_id}/extras", status_code=201)
+def create_extra(job_id: int, payload: NewExtra, role: str = Depends(current_role)):
+    if role != "Admin":
+        raise HTTPException(403, "Admin only")
+    return jobs.create_extra(job_id, payload.description, payload.parts, payload.labour)
+
+
 # UPDATE (Admin + Foreman): status and note
 @router.put("/jobs/{job_id}")
 def update(job_id: int, payload: JobUpdate, staff_id: UUID = Depends(current_user), role: str = Depends(current_role)):
@@ -91,7 +105,7 @@ def update(job_id: int, payload: JobUpdate, staff_id: UUID = Depends(current_use
 def quote_job(job_id: int, payload: QuoteUpdate, role: str = Depends(current_role)):
     if role != "Admin":
         raise HTTPException(403, "Admin only")
-    return jobs.set_quote(job_id, payload.quote, payload.extra_quote, payload.extra_reason)
+    return jobs.set_quote(job_id, payload.quote, payload.labour)
 
 
 # UPDATE (Admin + Foreman): set pickup time
@@ -108,4 +122,14 @@ def delete(job_id: int, staff_id: UUID = Depends(current_user), role: str = Depe
         raise HTTPException(403, "Admin only")
     jobs.delete_job(job_id)
     return Response(status_code=204)
-    
+
+
+# DELETE (Admin): remove one extra
+@router.delete("/extras/{extra_id}",  status_code=204)
+def delete_extra(extra_id: int, role: str = Depends(current_role)):
+    if role != "Admin":
+        raise HTTPException(403, "Admin only")
+    jobs.delete_extra(extra_id)
+    return Response(status_code=204)
+
+

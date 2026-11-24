@@ -1,7 +1,7 @@
 // Tools I need
 import { API } from './statuses.js';
 
-// Call the backend (used for every request)
+// HELPER: Call the backend (used by every request)
 export function api(path, token, method = 'GET', body = null) {
     const options = { method: method, headers: {'Content-Type': 'application/json' } };
     if (token) options.headers.Authorization = `Bearer ${token}`;

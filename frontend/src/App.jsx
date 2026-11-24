@@ -3,7 +3,7 @@ import { useState } from 'react';
 import TrackPage from './TrackPage';
 import StaffPage from './StaffPage';
 
-// The main component: Switch pages
+// PAGE SWTICH: Track my car or Staff
 export default function App() {
   const [page, setPage] = useState('track');
   return <main>
