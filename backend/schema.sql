@@ -43,5 +43,27 @@ create table if not exists public.staff (
 -- SECURITY: lock the staff table from the outside
 alter table public.staff enable row level security;
 
+-- ADD COLUMN: labour for the main job (SST is on labour only)
+alter table public.workshop_jobs
+    add column if not exists labour numeric(10, 2) not null default 0;
+
+-- TABLE: extra work found (one job has many extras)
+create table if not exists public.job_extras (
+    id bigint generated always as identity primary key,
+    job_id bigint not null references public.workshop_jobs(id) on delete cascade,
+    description text not null,
+    parts numeric(10, 2) not null default 0,
+    labour numeric(10, 2) not null default 0,
+    decision text not null default 'Pending',
+    created_at timestamptz not null default now(),
+    -- RULE: the 3 allowed decisions
+    check (decision in ('Pending', 'Approved', 'Declined')),
+    -- RULE: no negative prices
+    check (parts >= 0 and labour >= 0)
+);
+
+-- SECURITY: lock the extras table from the outside
+alter table public.job_extras enable row level security;
+
 -- GIVE A ROLE: run this once per staff with their UID from SUPABASE Authenthication
 -- insert into public.staff(user_id, role) values('UID', 'Admin')

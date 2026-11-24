@@ -23,6 +23,16 @@ def check_status(status):
     return status
 
 
+# HELPER: attach eaxh job's extras to it (one trip to the database for all of them)
+def attach_extras(cur, jobs):
+    ids = [job["id"] for job in jobs]
+    cur.execute("select * from public.job_extras where job_id = any(%s) order by id", (ids,))
+    extras = cur.fetchall()
+    for job in jobs:
+        job["extras"] = [ extra for extra in extras if extra["job_id"] == job["id"]]
+    return jobs    
+
+
 # CREATE (Admin): add a new job
 def create_job(staff_id, plate, car_model, customer_name, phone, service_type):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
@@ -42,17 +52,19 @@ def list_jobs(view):
         else:
             cur.execute("""select * from public.workshop_jobs
                 where status != 'Collected' order by created_at""")
-        return cur.fetchall()
+        return attach_extras(cur, cur.fetchall())
 
 
 # READ (Customer): track a car by plate + last 4
 def track(plate, last4):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        cur.execute("""select plate_number, car_model, customer_name, service_type, status, notes, updated_at, ready_at, quote, extra_quote, extra_reason, extra_decision from public.workshop_jobs
+        cur.execute("""select id, plate_number, car_model, customer_name, service_type, status, notes, updated_at, ready_at, quote, extra_quote, extra_reason, extra_decision from public.workshop_jobs
             where plate_number = %s and right(phone_number, 4) = %s 
             order by id desc limit 1""",
             (clean_plate(plate), last4))
         row = cur.fetchone()
+        if row is not None:
+            attach_extras(cur, [row])
     if row is None:
         raise HTTPException(404, "No job found for this car")
     return row
