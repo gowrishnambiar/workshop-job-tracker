@@ -4,13 +4,13 @@ import { COLOURS, SST_RATE } from './statuses.js';
 import { api } from './api.js';
 
 
-// Show money as RM with 2 decimels
+// HELPER: show money as RM with 2 decimals
 function money(amount) {
     return 'RM ' + Number(amount).toFixed(2);
 }
 
 
-// The quotation
+// SCREEN: Quotation box (prices, SST, total to pay)
 function QuoteBox({ job, onDecide}) {
     const quote = Number(job.quote);
     const extra = Number(job.extra_quote);
@@ -38,7 +38,7 @@ function QuoteBox({ job, onDecide}) {
 }
 
 
-// The customer page
+// PAGE (Customer): Track my car
 export default function TrackPage() {
     const [plate, setPlate] = useState('');
     const [last4, setLast4] = useState('');
@@ -46,7 +46,7 @@ export default function TrackPage() {
     const [message, setMessage] = useState('');
 
 
-// Check button: ask the backend
+// READ (Customer): Check button and find my car
 function check(event) {
     event.preventDefault();
     setMessage('Checking...');
@@ -56,7 +56,7 @@ function check(event) {
 }    
 
 
-// CUSTOMER: approves and declines the extra quote
+// UPDATE (Customer): Approve or decline the extra quote
 function decide(choice) {
     api('/track/decision', '', 'POST', { plate_number: plate.trim(), last4: last4, decision: choice})
         .then(data => setJob({ ...job, extra_decision: data.extra_decision}))
@@ -64,7 +64,7 @@ function decide(choice) {
 } 
 
 
-// What the customer sees
+// SCREEN: What the customer sees
 return <section className="narrow track">
     <h1>Where is my car?</h1>
     <form onSubmit={check}>

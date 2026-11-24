@@ -1,3 +1,4 @@
+/* BASE: page, text, inputs, buttons, tabs, panels */
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, Arial, sans-serif; background: linear-gradient(rgba(16, 20, 24, .85), rgba(16, 20, 24, .85)), url('/workshop.jpg') center / cover fixed; color: #e8edf2; line-height: 1.5; }
 main { width: min(100% - 2rem, 64rem); margin: auto; padding-block: 2rem; }
@@ -13,13 +14,13 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .tabs button.on { background: #eceaf7; color: #14132b; }
 .panel { display: grid; gap: .6rem; padding: 1.25rem; margin-block: 1rem; border: 1px solid #2a333d; border-radius: 1rem; background: #181e24; }
 
-/* The hero summary card */
+/* STAFF: Summary card (hero) and + Job button */
 .hero { padding: 1.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, .50); margin-block: 1rem; border-radius: 1.25rem; background: linear-gradient(135deg, #1fad74, #0b8d73); }
 .big { font-size: 2.5rem; font-weight: bold; }
 .chip { padding: .3rem .8rem; border-radius: 99rem; background: rgba(255, 255, 255, .15); font-size: 1rem; }
 .add { width: 100%; padding: .9rem; font-size: 1.05rem; }
 
-/* One job card */
+/* STAFF: One car row (JobRow) */
 .job { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 1rem 1.25rem; margin-block: .6rem; border-radius: 1rem; background: #012824; border-left: 4px solid #2e2c55; }
 .title { font-size: 1.1rem; font-weight: bold; }
 .plate { display: inline-block; padding: .1rem .5rem; border-radius: .3rem; background: #fefefe; color: #14132b; font-family: Arial, Helvetica, sans-serif; font-weight: bold; letter-spacing: .01em; }
@@ -29,17 +30,21 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .small { padding: .45rem .8rem; font-size: .85rem; }
 .danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
 .icon { padding: .45rem .6rem; font-size: 1rem; line-height: 1; }
+
+/* STAFF: Quotation panel (Admin) */
 .quote { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; grid-column: 1 / -1; padding-top: .75rem; border-top: 1px solid #2a333d; }
 .quote label, .item { display: grid; gap: .25rem; font-size: .85rem; color: #8b98a5; }
 .quote input { width: 9rem; }
 .item strong { color: #e8edf2; font-size: 1rem; }
+
+/* STAFF: Pickup time and note row */
 .hidden-picker { position: absolute; opacity: 0; width: 0; height: 0; pointer-events:none; }
-.ready button { background: transparent; border: 1px solid currentColor; color: #5eead4; }
+.pickup-time button { background: transparent; border: 1px solid currentColor; color: #5eead4; }
 .job .title { white-space: nowrap; }
 .note-row { grid-column: 1 / -1; display: flex; gap: .5rem; }
 .note-row input { flex: 1; }
 
-/* Status colours: the text, and the card's left edge */
+/* STATUS: Colours for the text and the card's left edge */
 .received { color: #38bdf8; }
 .checking { color: #a78bfa; }
 .waiting { color: #fbbf24; }
@@ -53,7 +58,7 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .edge-ready { border-left-color: #a3e635; }
 .edge-collected { border-left-color: #e2e8f0; }
 
-/* Customer page */
+/* CUSTOMER: Track My Car page and quotation box */
 .banner { padding: 1rem; border-radius: 1rem; background: currentColor; }
 .banner strong { color: #14132b; font-size: 1.5rem; }
 .track { font-size: 1.15rem; }
@@ -64,7 +69,7 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #12aa
 .grand { font-size: 1.15rem; margin-top: .75rem; border-top: 2px solid #e8edf2;}
 .download { width: 100%; margin-top: 1rem; background: transparent; color: #e8edf2; border: 1px dashed #8b98a5; }
 
-
+/* PHOME: layout for small screen */
 @media (max-width: 40rem) {
   h1 { font-size: 1.6rem; }
   .actions input { width: 100%; }

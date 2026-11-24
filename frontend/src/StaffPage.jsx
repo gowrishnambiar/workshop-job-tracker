@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { STATUSES, COLOURS } from './statuses.js';
 import { api } from './api.js';
 
-// A blank new-job form
+// SHAPE: A blank new-job form
 const EMPTY = { plate_number: '', car_model: '', customer_name: '', phone: '', service_type: '' };
 
 
@@ -16,7 +16,7 @@ function toInput(iso) {
 }
 
 
-// One car in the list
+// ROW: One car in the list (JowRow)
 function JobRow({ job, token, reload, role }) {
     const [notes, setNotes] = useState(job.notes);
     const [quote, setQuote] = useState(job.quote);
@@ -27,7 +27,7 @@ function JobRow({ job, token, reload, role }) {
     const pickerRef = useRef(null);
 
 
-    // UPDATE: save status and note
+    // UPDATE (Admin + Foreman): Save status (Admin saves the note)
     function save(status) {
         api('/jobs/' + job.id, token, 'PUT', { status: status, notes: notes }).then(reload);
     }
@@ -51,7 +51,7 @@ function JobRow({ job, token, reload, role }) {
     }
 
 
-    // What one row looks like
+    // SCREEN: What one car row look like
     return <div className={'job edge-' + COLOURS[job.status]}>
         <div>
             <div className="title">{job.service_type} · {job.car_model}</div>
@@ -61,7 +61,7 @@ function JobRow({ job, token, reload, role }) {
             <select className={'status ' + COLOURS[job.status]} value={job.status} onChange={e => save(e.target.value)}>
                 {STATUSES.map(name => <option key={name}>{name}</option>)}
             </select>
-            <div className="ready">
+            <div className="pickup-time">
                 <button type="button" className="small" onClick={() => pickerRef.current.showPicker()}>
                     {readyAt ? 'Pickup: ' + new Date(readyAt).toLocaleString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : 'Set pickup time'}
                 </button>
@@ -86,7 +86,7 @@ function JobRow({ job, token, reload, role }) {
     </div>;
 }
 
-// The staff page
+// PAGE (Staff): Sign in, board, add jobs
 export default function StaffPage() {
     const [token, setToken] = useState('');
     const [role, setRole] = useState('');
@@ -98,12 +98,12 @@ export default function StaffPage() {
     const [message, setMessage] = useState('');
     const [showForm, setShowForm] = useState(false);
 
-    // READ: load the list
+    // READ (Staff): Load the list
     function load() {
         api('/jobs?view=' + view, token).then(data => setJobs(data));
     }
 
-    // Load the list when signed in or the tab changes
+    // AUTO: reload when signed in or the tab changes
     useEffect(() => {
         if (token) load();
     }, [token, view]);
@@ -116,7 +116,7 @@ export default function StaffPage() {
             .catch(() => setMessage('Sign in failed.'));
     }
 
-    // CREATE: add a new job
+    // CREATE (Admin): Add a new job
     function addJob(event) {
         event.preventDefault();
         api('/jobs', token, 'POST', form)
@@ -124,7 +124,7 @@ export default function StaffPage() {
             .catch(() => setMessage('Could not add. Fill every box.'));
     }
 
-    // Not signed in: show the sign-in form
+    // SCREEN: Sign-in form (not signed-in)
     if (!token) return <section className="narrow track">
         <h1>Staff sign in</h1>
         <form onSubmit={signIn}>
@@ -135,8 +135,9 @@ export default function StaffPage() {
         <p className="muted">{message}</p>
     </section>;
 
-    // Signed in: Show the board
+    // SCREEN: The board (signed-in)
     return <section>
+        {/*} SCREEN: Summary card (Car count, status chips) */}
         <div className="hero">
             <p>Workshop Job Tracker</p>
             <div className="big">{jobs.length} cars</div>
@@ -146,6 +147,7 @@ export default function StaffPage() {
             </div>
 
         </div>
+        {/* SCREEN (Admin): + Job button and new-job form */}
         {role === 'Admin' ? <button className="add" onClick={() => setShowForm(!showForm)}>+ Job</button> : null}
         {showForm ? <form className="panel" onSubmit={addJob}>
             <input value={form.plate_number} onChange={e => setForm({ ...form, plate_number: e.target.value })} placeholder="Plate" />
@@ -156,10 +158,12 @@ export default function StaffPage() {
             <button>Add job</button>
         </form> : null}
         <p className="muted">{message}</p>
+        {/* SCREEN: Active/Completed tabs */}
         <nav className="row tabs">
             <button className={view === 'active' ? 'on' : ''} onClick={() => setView('active')}>Active</button>
             <button className={view === 'completed' ? 'on' : ''} onClick={() => setView('completed')}>Completed</button>
         </nav>
+        {/* SCREEN: The list of cars */}
         {jobs.map(job => <JobRow key={job.id} job={job} token={token} reload={load} role={role} />)}
     </section>;
 }
