@@ -68,7 +68,7 @@ def list_jobs(view):
 # READ (Customer): track a car by plate + last 4
 def track(plate, last4):
     with connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        cur.execute("""select id, plate_number, car_model, customer_name, service_type, status, notes, updated_at, ready_at, quote, extra_quote, extra_reason, extra_decision from public.workshop_jobs
+        cur.execute("""select id, plate_number, car_model, customer_name, service_type, status, notes, updated_at, ready_at, quote, labour from public.workshop_jobs
             where plate_number = %s and right(phone_number, 4) = %s 
             order by id desc limit 1""",
             (clean_plate(plate), last4))

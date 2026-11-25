@@ -90,6 +90,9 @@ button.chip.on { background: #fff; color: #0e7490; }
 .line.total { font-weight: bold; border-top: 1px solid #2a333d; }
 .grand { font-size: 1.15rem; margin-top: .75rem; border-top: 2px solid #e8edf2;}
 .download { width: 100%; margin-top: 1rem; background: transparent; color: #e8edf2; border: 1px dashed #8b98a5; }
+.q-item { padding-block: .5rem; border-top: 1px solid #2a333d; }
+.wait { color: #fbbf24; font-size: .95rem; }
+.track.narrow { max-width: 36rem; }
 
 /* PHOME: layout for small screen */
 @media (max-width: 40rem) {

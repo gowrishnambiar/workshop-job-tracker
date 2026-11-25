@@ -9,30 +9,67 @@ function money(amount) {
     return 'RM ' + Number(amount).toFixed(2);
 }
 
+// HELPER: add up one price column (part / labour) of a extra list
+function sum(list,field) {
+    let total = 0;
+    for (const extra of list) {
+        total = total + Number(extra[field]);
+    }
+    return total;
+}
 
-// SCREEN: Quotation box (prices, SST, total to pay)
-function QuoteBox({ job, onDecide}) {
-    const quote = Number(job.quote);
-    const extra = Number(job.extra_quote);
-    const approved = job.extra_decision === 'Approved';
-    const toPay = (quote + (approved ? extra : 0)) * (1 + SST_RATE);
-    if (quote === 0) return <p className="muted">Quotation coming soon</p>;
+
+// SCREEN: quotation box (main job + extras, SST on labour only)
+function QuoteBox({ job, onDecide }) {
+    const parts = Number(job.quote);
+    const labour = Number(job.labour);
+    if (parts + labour === 0) return <p className="muted">Quotation coming soon</p>;
+
+    // Split the extras by the customer's decision
+    const approved = job.extras.filter(extra => extra.decision === 'Approved');
+    const waiting = job.extras.filter(extra => extra.decision === 'Pending');
+
+    // Totals: main job + approved extras only. SST on labour only.
+    const allParts = parts + sum(approved, 'parts');
+    const allLabour = labour + sum(approved, 'labour');
+    const sst = allLabour * SST_RATE;
+    const toPay = allParts + allLabour + sst;
+
+    // What the waiting extras would add, with their SST
+    const waitingTotal = sum(waiting, 'parts') + sum(waiting, 'labour') * (1 + SST_RATE);
+
     return <div className="quote-box">
         <h3>Quotation</h3>
-        <div className="line"><span>{job.service_type}</span><span>{money(quote)}</span></div>
-        <div className="line muted"><span>SST 8%</span><span>{money(quote * SST_RATE)}</span></div>
-        <div className="line total"><span>Total</span><span>{money(quote * (1 + SST_RATE))}</span></div>
-        {extra > 0 ? <div>
-            <h3>Extra work found</h3>
-            <div className="line"><span>{job.extra_reason}</span><span>{money(extra)}</span></div>
-            <div className="line muted"><span>SST 8%</span><span>{money(extra * SST_RATE)}</span></div>
-            <div className="line total"><span>Extra total</span><span>{money(extra * (1 + SST_RATE))}</span></div>
-            {job.extra_decision === 'Pending' ? <div className="row">
-                <button onClick={() => onDecide('Approved')}>Approve</button>
-                <button className="danger" onClick={() => onDecide('Declined')}>Decline</button>
-            </div> : <p>Your decision: <strong>{job.extra_decision}</strong></p>}
-        </div> : null}
-        {extra > 0 ? <div className="line total grand"><span>Total to pay</span><span>{money(toPay)}</span></div> : null}
+
+        {/* Main job */}
+        <div className="q-item">
+            <div className="line"><strong>{job.service_type}</strong></div>
+            <div className="line muted"><span>Parts</span><span>{money(parts)}</span></div>
+            <div className="line muted"><span>Labour</span><span>{money(labour)}</span></div>
+        </div>
+
+        {/* Extras: each with its decision, buttons only while waiting */}
+        {job.extras.map(extra => <div key={extra.id} className="q-item">
+            <div className="line">
+                <strong>{extra.description}</strong>
+                <span className={'badge badge-' + extra.decision.toLowerCase()}>{extra.decision === 'Pending' ? 'Your decision' : extra.decision}</span>
+            </div>
+            <div className="line muted"><span>Parts</span><span>{money(extra.parts)}</span></div>
+            <div className="line muted"><span>Labour</span><span>{money(extra.labour)}</span></div>
+            {extra.decision === 'Pending' ? <div className="row">
+                <button onClick={() => onDecide(extra.id, 'Approved')}>Approve</button>
+                <button className="danger" onClick={() => onDecide(extra.id, 'Declined')}>Decline</button>
+            </div> : null}
+        </div>)}
+
+        {/* Totals: approved items only */}
+        <div className="line total"><span>Parts</span><span>{money(allParts)}</span></div>
+        <div className="line"><span>Labour</span><span>{money(allLabour)}</span></div>
+        <div className="line muted"><span>SST 8% (on labour only)</span><span>{money(sst)}</span></div>
+        <div className="line total grand"><span>Total to pay</span><span>{money(toPay)}</span></div>
+        {waiting.length ? <p className="wait">+ {money(waitingTotal)} if you approve the items waiting for you</p> : null}
+        <p className="muted">Only approved items are charged. Parts already include sales tax.</p>
+
         <button className="download" disabled>Download Quotation (coming soon)</button>
     </div>;
 }
@@ -56,11 +93,11 @@ function check(event) {
 }    
 
 
-// UPDATE (Customer): Approve or decline the extra quote
-function decide(choice) {
-    api('/track/decision', '', 'POST', { plate_number: plate.trim(), last4: last4, decision: choice})
-        .then(data => setJob({ ...job, extra_decision: data.extra_decision}))
-        .catch(() => setMessage('Could not save your decision. Please try again.'))
+// UPDATE (Customer): Approve or decline one extra
+function decide(extraID, choice) {
+    api('/track/extras/' + extraID + '/decision', '', 'POST', { plate_number: plate.trim(), last4: last4, decision: choice})
+        .then(updated => setJob({ ...job, extras: job.extras.map(extra => extra.id === updated.id ? updated : extra) }))
+        .catch(() => setMessage('Could not save your decision. Please try again.'));
 } 
 
 
