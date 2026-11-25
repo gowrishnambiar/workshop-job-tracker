@@ -15,25 +15,28 @@ This app answers the status question once, in one place, tells customers when to
 ## Features
 
 ### For customers (no login)
+
 - Track a car with the plate number plus the last 4 digits of the phone number
 - See the live status, the workshop's note, the pickup time and the last update time
 - See the quotation split into parts and labour, with SST 8% on labour only (parts already include sales tax)
 - Approve or decline each extra repair one by one; the total updates straight away and shows what pending items would add
-![Customer view: quotation with parts, labour, SST and approve or decline](screenshots/customer-quote.png)
+- ![Customer view: quotation with parts, labour, SST and approve or decline](screenshots/customer-quote.png)
 
 ### For staff (login required)
+
 - **Admin:** add jobs, update status and notes, set the pickup time, set the quotation (parts + labour), add or remove extra repairs, delete jobs entered by mistake
 - **Foreman:** update the status and pickup time; sees a "Do this work" list of the main job plus approved extras only
 - Filters: status buttons with counts, car model dropdown, plate search
 - Active and Completed lists; collected cars move to Completed as service history
 - Login is remembered while the tab is open, with Log out and automatic sign-out when the session expires
-![Staff board: status filters, pickup time and car list](screenshots/staff-board.png)
+-  ![Staff board: status filters, pickup time and car list](screenshots/staff-board.png)
 
 ![Admin: quotation panel with parts, labour and extra repairs](screenshots/staff-quotation-update.png)
 
-![Foreman: "Do this work" list showing approved work only](screenshots/foreman-board.png)
+![Foreman: ](screenshots/foreman-board.png)
 
 ### Security
+
 - Supabase Auth login; every staff request carries a bearer token
 - Roles (Admin, Foreman) checked on the server, so hiding a button is never the only lock (401 vs 403)
 - Customer data and decisions only work when the plate and phone digits both match
@@ -41,21 +44,25 @@ This app answers the status question once, in one place, tells customers when to
 - Row level security on every table; secrets stay in .env locally and in environment variables online, never in Git
 
 ## Tech stack
-| Layer | Tools |
-| --- | --- |
-| Frontend | React 19, Vite, JavaScript, CSS |
-| Backend | Python, FastAPI, Uvicorn, Pydantic |
-| Database | PostgreSQL on Supabase, psycopg |
-| Auth | Supabase Auth |
-| Hosting | Cloudflare Pages (frontend), Render (backend) |
+
+| Layer    | Tools                                         |
+| -------- | --------------------------------------------- |
+| Frontend | React 19, Vite, JavaScript, CSS               |
+| Backend  | Python, FastAPI, Uvicorn, Pydantic            |
+| Database | PostgreSQL on Supabase, psycopg               |
+| Auth     | Supabase Auth                                 |
+| Hosting  | Cloudflare Pages (frontend), Render (backend) |
 
 ## How a request flows
+
 ```
 Page (React) -> api.js -> main.py -> routers/ -> auth.py (guard) -> jobs.py (SQL) -> database.py -> Supabase
 ```
 
 ## Project structure
+
 Every file is grouped by the same feature sections: **1. Jobs, 2. Track My Car, 3. Pickup Time, 4. Quotation + Extras**.
+
 ```
 backend/
   main.py          app, CORS, routers
@@ -75,6 +82,7 @@ frontend/src/
 ## Run it locally
 
 **Backend**
+
 ```
 python3 -m venv .venv
 source .venv/bin/activate
@@ -83,17 +91,21 @@ cd backend
 cp .env.example .env      # then fill in your own Supabase values
 uvicorn main:app --reload
 ```
+
 Run `backend/schema.sql` once in the Supabase SQL Editor, then add each staff member's role to the `staff` table. API docs: http://127.0.0.1:8000/docs
 
 **Frontend**
+
 ```
 cd frontend
 npm install
 npm run dev
 ```
+
 Open http://localhost:5173
 
 ## Roadmap (phase 2)
+
 - Car history and warranty check for returning customers
 - Download the quotation as a PDF
 - Lock extra-work decisions once a car is ready for pickup
