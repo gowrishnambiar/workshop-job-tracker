@@ -1,8 +1,12 @@
+// ===== SETUP =====
+
 // Tools I need
 import { useState } from 'react';
 import { COLOURS, SST_RATE } from './statuses.js';
 import { api } from './api.js';
 
+
+// ===== HELPERS =====
 
 // HELPER: show money as RM with 2 decimals
 function money(amount) {
@@ -10,7 +14,7 @@ function money(amount) {
 }
 
 // HELPER: add up one price column (part / labour) of a extra list
-function sum(list,field) {
+function sum(list, field) {
     let total = 0;
     for (const extra of list) {
         total = total + Number(extra[field]);
@@ -18,8 +22,7 @@ function sum(list,field) {
     return total;
 }
 
-
-// SCREEN: quotation box (main job + extras, SST on labour only)
+// ===== 4. QUOTATION: the customer's quotation bos =====
 function QuoteBox({ job, onDecide }) {
     const parts = Number(job.quote);
     const labour = Number(job.labour);
@@ -75,51 +78,62 @@ function QuoteBox({ job, onDecide }) {
 }
 
 
-// PAGE (Customer): Track my car
+// ===== 2. TRACK MY CAR =====
 export default function TrackPage() {
+    // STATE: the form boxes, the car found and a message
     const [plate, setPlate] = useState('');
     const [last4, setLast4] = useState('');
     const [job, setJob] = useState(null);
     const [message, setMessage] = useState('');
 
 
-// READ (Customer): Check button and find my car
-function check(event) {
-    event.preventDefault();
-    setMessage('Checking...');
-    api('/track', '', 'POST', {plate_number: plate.trim(), last4: last4 })
-        .then(data => {setJob(data); setMessage(''); })
-        .catch(() => {setJob(null); setMessage('No job found for this plate.'); });
-}    
+    // ----- 2. TRACK MY CAR -----
+    // READ (Customer): Check button and find my car
+    function check(event) {
+        event.preventDefault();
+        setMessage('Checking...');
+        api('/track', '', 'POST', { plate_number: plate.trim(), last4: last4 })
+            .then(data => { setJob(data); setMessage(''); })
+            .catch(() => { setJob(null); setMessage('No job found for this plate.'); });
+    }
 
 
-// UPDATE (Customer): Approve or decline one extra
-function decide(extraID, choice) {
-    api('/track/extras/' + extraID + '/decision', '', 'POST', { plate_number: plate.trim(), last4: last4, decision: choice})
-        .then(updated => setJob({ ...job, extras: job.extras.map(extra => extra.id === updated.id ? updated : extra) }))
-        .catch(() => setMessage('Could not save your decision. Please try again.'));
-} 
+    // ----- 4. QUOTATION -----
+    // UPDATE (Customer): Approve or decline one extra
+    function decide(extraID, choice) {
+        api('/track/extras/' + extraID + '/decision', '', 'POST', { plate_number: plate.trim(), last4: last4, decision: choice })
+            .then(updated => setJob({ ...job, extras: job.extras.map(extra => extra.id === updated.id ? updated : extra) }))
+            .catch(() => setMessage('Could not save your decision. Please try again.'));
+    }
 
 
-// SCREEN: What the customer sees
-return <section className="narrow track">
-    <h1>Where is my car?</h1>
-    <form onSubmit={check}>
-        <input value={plate} onChange={e => setPlate(e.target.value)} placeholder="Plate Number" />
-        <input value={last4} onChange={e => setLast4(e.target.value)} placeholder="Last 4 digit of your phone number" maxLength={4} inputMode="numeric" />
-        <button>Check</button>
-    </form>
-    <p className="muted">{message}</p>
-    {job ? <div className="panel">
-        <h2> Hi {job.customer_name}, here's your update</h2>
-        <div className={'banner ' + COLOURS[job.status]}><strong>{job.status}</strong></div>
-        <p>{job.plate_number} · {job.car_model}</p>
-        {job.notes ? <p>Note: {job.notes}</p> :null}
-        <QuoteBox job={job} onDecide={decide} />
-        {job.ready_at ? <p className="pickup">
-            Ready for pickup: <strong>{new Date(job.ready_at).toLocaleString('en-MY', { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</strong>
-        </p> : null}
-        <p className="muted">Updated at {new Date(job.updated_at).toLocaleString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} </p>
-    </div> : null}
-</section>
+    // ===== SCREEN: What the customer sees =====
+    return <section className="narrow track">
+        <h1>Where is my car?</h1>
+
+        {/* 2. TRACK MY CAR: the form */}
+        <form onSubmit={check}>
+            <input value={plate} onChange={e => setPlate(e.target.value)} placeholder="Plate Number" />
+            <input value={last4} onChange={e => setLast4(e.target.value)} placeholder="Last 4 digits of your phone number" maxLength={4} inputMode="numeric" />
+            <button>Check</button>
+        </form>
+        <p className="muted">{message}</p>
+
+        {/* 2. TRACK MY CAR: the result */}
+        {job ? <div className="panel">
+            <h2>Hi {job.customer_name}, here's your update</h2>
+            <div className={'banner ' + COLOURS[job.status]}><strong>{job.status}</strong></div>
+            <p>{job.plate_number} · {job.car_model}</p>
+            {job.notes ? <p>Note: {job.notes}</p> : null}
+
+            {/* 4. QUOTATION */}
+            <QuoteBox job={job} onDecide={decide} />
+
+            {/* 3. PICKUP TIME */}
+            {job.ready_at ? <p className="pickup">
+                Ready for pickup: <strong>{new Date(job.ready_at).toLocaleString('en-MY', { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</strong>
+            </p> : null}
+            <p className="muted">Updated at {new Date(job.updated_at).toLocaleString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} </p>
+        </div> : null}
+    </section>;
 }

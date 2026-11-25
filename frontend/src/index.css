@@ -1,4 +1,4 @@
-/* BASE: page, text, inputs, buttons, tabs, panels */
+/* ===== BASE: page, text, inputs, buttons, tabs, panels ===== */
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, Arial, sans-serif; background: linear-gradient(rgba(16, 20, 24, .85), rgba(16, 20, 24, .85)), url('/workshop.jpg') center / cover fixed; color: #e8edf2; line-height: 1.5; }
 main { width: min(100% - 2rem, 64rem); margin: auto; padding-block: 2rem; }
@@ -14,59 +14,46 @@ button { padding: .6rem 1rem; border: 0; border-radius: .7rem; background: #14b8
 .tabs button.on { background: #eceaf7; color: #14132b; }
 .panel { display: grid; gap: .6rem; padding: 1.25rem; margin-block: 1rem; border: 1px solid #2a333d; border-radius: 1rem; background: #181e24; }
 
-/* STAFF: Summary card (hero) and + Job button */
+/* Shared button styles (used on both pages */
+.small { padding: .45rem .8rem; font-size: .85rem; }
+.danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
+.icon { padding: .45rem .6rem; font-size: 1rem; line-height: 1; }
+
+/* ===== STAFF BOARD: login, summary, filters ===== */
+/* Summary card (hero) and + Job button */
 .hero { padding: 1.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, .50); margin-block: 1rem; border-radius: 1.25rem; background: linear-gradient(135deg, #14b8a6, #0e7490); }
 .big { font-size: 2.5rem; font-weight: bold; }
 .chip { padding: .3rem .8rem; border-radius: 99rem; background: rgba(255, 255, 255, .15); font-size: 1rem; }
 .add { width: 100%; padding: .9rem; font-size: 1.05rem; }
 
-/* STAFF: Who is signed in + log out on the right */
+/* LOGIN: who is signed in + Log out, on the right */
 .account { justify-content: flex-end; }
 
-/* STAFF: status filter buttons (selected one is white) */
+/* FILTERS: status button (selected one is white */
 button.chip { background: rgba(255, 255, 255, .15); color: #fff; }
 button.chip.on { background: #fff; color: #0e7490; }
 
-/* STAFF: tabs left, filters right, on one line */
+/* FILTERS: tabs left, mode + plate search right */
 .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
 .filters select { padding: .65rem .8rem; border: 1px solid #2a333d; border-radius: .7rem; background: #181e24; color: inherit; }
 .filters input { width: 10rem; }
 
-/* STAFF: One car row (JobRow) */
+
+/* ===== 1. JOBS: one car row (JobRow) =====*/
 .job { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 1rem 1.25rem; margin-block: .6rem; border-radius: 1rem; background: #06262b; border-left: 4px solid #2e2c55; }
 .title { font-size: 1.1rem; font-weight: bold; }
+.job .title { white-space: nowrap; }
 .plate { display: inline-block; padding: .1rem .5rem; border-radius: .3rem; background: #fefefe; color: #14132b; font-family: Arial, Helvetica, sans-serif; font-weight: bold; letter-spacing: .01em; }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .actions input { width: 12rem; }
 .status { padding: .5rem; border: 2px solid currentColor; border-radius: .7rem; background: #12122a; font-weight: bold; }
-.small { padding: .45rem .8rem; font-size: .85rem; }
-.danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
-.icon { padding: .45rem .6rem; font-size: 1rem; line-height: 1; }
 
-/* STAFF: Quotation panel (Admin) */
-.quote { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; grid-column: 1 / -1; padding-top: .75rem; border-top: 1px solid #2a333d; }
-.quote label, .item { display: grid; gap: .25rem; font-size: .85rem; color: #8b98a5; }
-.quote input { width: 9rem; }
-.item strong { color: #e8edf2; font-size: 1rem; }
-.extras { flex-basis: 100%; display: grid; gap: .5rem; }
-.extra { display: grid; grid-template-columns: 1fr 6rem 6rem 6.5rem 2.5rem; gap: .5rem; align-items: center; }
-.extra input { width: 100%; }
-.badge { padding: .2rem .5rem; border-radius: 99rem; font-size: .8rem; font-weight: bold; text-align: center; }
-.badge-pending { background: rgba(251, 191, 36, .15); color: #fbbf24; }
-.badge-approved { background: rgba(163, 230, 53, .15); color: #a3e635; }
-.badge-declined { background: rgba(248, 113, 113, .15); color: #f87171; }
-
-/* STAFF: Foreman's "Do this work" box */
-.work { grid-column: 1 / -1; padding: .6rem .8rem; border-radius: .7rem; background: rgba(45, 212, 191, .08); border: 1px solid rgba(45, 212, 191, .35); }
-
-/* STAFF: Pickup time and note row */
-.hidden-picker { position: absolute; opacity: 0; width: 0; height: 0; pointer-events:none; }
-.pickup-time button { background: transparent; border: 1px solid currentColor; color: #5eead4; }
-.job .title { white-space: nowrap; }
+/* Note for the customer: second row, full width */
 .note-row { grid-column: 1 / -1; display: flex; gap: .5rem; }
 .note-row input { flex: 1; }
 
-/* STATUS: Colours for the text and the card's left edge */
+
+/* ===== STATUS COLOURS: the text and the card's left edge ===== */
 .received { color: #38bdf8; }
 .checking { color: #a78bfa; }
 .waiting { color: #fbbf24; }
@@ -80,21 +67,52 @@ button.chip.on { background: #fff; color: #0e7490; }
 .edge-ready { border-left-color: #a3e635; }
 .edge-collected { border-left-color: #e2e8f0; }
 
-/* CUSTOMER: Track My Car page and quotation box */
+
+/* ===== 2. TRACK MY CAR: customer page ===== */
+.track { font-size: 1.15rem; }
+.track.narrow { max-width: 36rem; }
+.track form { display: grid; gap: .6rem; justify-items: start; }
 .banner { padding: 1rem; border-radius: 1rem; background: currentColor; }
 .banner strong { color: #14132b; font-size: 1.5rem; }
-.track { font-size: 1.15rem; }
-.track form { display: grid; gap: .6rem; justify-items: start; }
+
+
+/* ===== 3. PICKUP TIME ===== */
+.hidden-picker { position: absolute; opacity: 0; width: 0; height: 0; pointer-events:none; }
+.pickup-time button { background: transparent; border: 1px solid currentColor; color: #5eead4; }
+
+
+/* ===== 4. QUOTATION + EXTRAS ===== */
+/* Staff (Admin): quotation panel */
+.quote { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; grid-column: 1 / -1; padding-top: .75rem; border-top: 1px solid #2a333d; }
+.quote label, .item { display: grid; gap: .25rem; font-size: .85rem; color: #8b98a5; }
+.quote input { width: 9rem; }
+.item strong { color: #e8edf2; font-size: 1rem; }
+.extras { flex-basis: 100%; display: grid; gap: .5rem; }
+.extra { display: grid; grid-template-columns: 1fr 6rem 6rem 6.5rem 2.5rem; gap: .5rem; align-items: center; }
+.extra input { width: 100%; }
+
+/* Decision badges (staff and customer) */
+.badge { padding: .2rem .5rem; border-radius: 99rem; font-size: .8rem; font-weight: bold; text-align: center; }
+.badge-pending { background: rgba(251, 191, 36, .15); color: #fbbf24; }
+.badge-approved { background: rgba(163, 230, 53, .15); color: #a3e635; }
+.badge-declined { background: rgba(248, 113, 113, .15); color: #f87171; }
+
+
+/* STAFF: Foreman's "Complete this work" box */
+.work { grid-column: 1 / -1; padding: .6rem .8rem; border-radius: .7rem; background: rgba(45, 212, 191, .08); border: 1px solid rgba(45, 212, 191, .35); }
+
+
+/* CUSTOMER: quotation box */
 .quote-box { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid #2a333d; }
+.q-item { padding-block: .5rem; border-top: 1px solid #2a333d; }
 .line { display: flex; justify-content: space-between; padding-block: .35rem; }
 .line.total { font-weight: bold; border-top: 1px solid #2a333d; }
 .grand { font-size: 1.15rem; margin-top: .75rem; border-top: 2px solid #e8edf2;}
-.download { width: 100%; margin-top: 1rem; background: transparent; color: #e8edf2; border: 1px dashed #8b98a5; }
-.q-item { padding-block: .5rem; border-top: 1px solid #2a333d; }
 .wait { color: #fbbf24; font-size: .95rem; }
-.track.narrow { max-width: 36rem; }
+.download { width: 100%; margin-top: 1rem; background: transparent; color: #e8edf2; border: 1px dashed #8b98a5; }
 
-/* PHOME: layout for small screen */
+
+/* ===== PHONE: small screen ===== */
 @media (max-width: 40rem) {
   h1 { font-size: 1.6rem; }
   .actions input { width: 100%; }
