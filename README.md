@@ -19,6 +19,7 @@ This app answers the status question once, in one place, tells customers when to
 - See the live status, the workshop's note, the pickup time and the last update time
 - See the quotation split into parts and labour, with SST 8% on labour only (parts already include sales tax)
 - Approve or decline each extra repair one by one; the total updates straight away and shows what pending items would add
+![Customer view: quotation with parts, labour, SST and approve or decline](screenshots/customer-quote.png)
 
 ### For staff (login required)
 - **Admin:** add jobs, update status and notes, set the pickup time, set the quotation (parts + labour), add or remove extra repairs, delete jobs entered by mistake
@@ -26,6 +27,11 @@ This app answers the status question once, in one place, tells customers when to
 - Filters: status buttons with counts, car model dropdown, plate search
 - Active and Completed lists; collected cars move to Completed as service history
 - Login is remembered while the tab is open, with Log out and automatic sign-out when the session expires
+![Staff board: status filters, pickup time and car list](screenshots/staff-board.png)
+
+![Admin: quotation panel with parts, labour and extra repairs](screenshots/staff-quotation-update.png)
+
+![Foreman: "Do this work" list showing approved work only](screenshots/foreman-board.png)
 
 ### Security
 - Supabase Auth login; every staff request carries a bearer token
